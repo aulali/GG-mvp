@@ -46,13 +46,6 @@ $mint: #71b99f
 $mint-muted: #C7E4DD
 $mint-muddy: #537a70
 
-$avocado-slight: #d8e29f
-$avocado-light: #bacc71
-$avocado-medium: #a7bf51
-$avocado: #7a9139
-$avocado-shadow: #607026
-$avocado-black: #424c16
-
 $star-bright: #f8fbfc
 $star-light: #eff6f8
 $star-medium: #e4edef
@@ -476,33 +469,7 @@ li.alertnav
           font-style: normal
 
 
-// How it Works Page (Apprenticeships New) =================================================================
-
-.hero-howitworks
-  position: relative
-  h1
-    position: relative
-    z-index: 1
-  h1:after
-    font-family: fontAwesome
-    //content: "\f013"
-    color: rgba(255, 255, 255, 0.1)
-    font-size: 6em
-    width: 1em
-    position: absolute
-    display: inline-block
-    text-align: center
-    top: 0
-    left: 50%
-    margin-left: -0.5em
-    margin-top: -100px
-    z-index: -1
-    opacity: 0.5
-  .span9
-    position: relative
-    z-index: 2
-
-
+// New Event (How it Works Page) =================================================================
 #darkspan
   padding: 45px 0
   background-color: #323232
@@ -513,14 +480,6 @@ li.alertnav
   .btn
     margin: 2px 0px
 
-.checklist
-  li
-    line-height: 28px
-    list-style: none
-  li:before
-    font-family: fontAwesome
-    content: "\f00c"
-    color: $grass
 
 
 // FAQ ======================================================================================
@@ -768,13 +727,14 @@ li.alertnav
 ul.token-input-list-facebook
   clear: none
 
-.popover
-  .left, .right, .top, .bottom
+.popover.left, .popover.right, .popover.top, .popover.bottom
   background: #333
   text-align: left
   font-size: 13px
   .arrow
     border-right-color: #333
+.popover
+  .left
 .popover-inner
   text-align: left
 .popover-title
@@ -1594,9 +1554,9 @@ input[type="radio"], input[type="checkbox"]
   .images-desc
     font-size: 14px
     color: $silver-dark
-    margin: 10px 0 -40px 0
+    margin-bottom: -20px
   #private-address
-    margin: 0 0 4px 0
+    margin-top: 4px
   #dates, #from, #address, #nbrhood-toggle
     display: inline
     &.hidden
@@ -1776,7 +1736,7 @@ input[type="radio"], input[type="checkbox"]
     color: $grass
 
 
-// Dashboards ======================================================================================
+// Dashboard ======================================================================================
 #dashboard-display
   .fancyform-light
     background-color: #FFF
@@ -1784,28 +1744,30 @@ input[type="radio"], input[type="checkbox"]
   .label
     font-size: 11px
   table
-    background-color: $silver-light
     margin-bottom: 10px
     td
       line-height: 17px
     .image
-      width: 5%
+      width: 7%
       text-align: center
     .title
-      width: 37%
+      width: 45%
       .title-boxlink
         font-size: 14px
         height: inherit
     .spots
-      width: 6%
+      width: 8.5%
     .dates
-      width: 13%
+      width: 11%
     .state
       width: 8.5%
       text-align: center
     .countdown
-      width: 18%
-      //background-color: $alert-yellow
+      width: 20%
+      background-color: $alert-yellow
+    .nested-table
+      padding: 0px
+      border: none
     &.table-subtable
       margin: 0px
       border: 0px
@@ -1815,115 +1777,18 @@ input[type="radio"], input[type="checkbox"]
         border-top: 0px
         border-bottom: 0px
     .nested-table
-      padding: 0px
-      border: none
       table
         border-radius: 0px
       td
-        background-color: #FFF
+        background-color: $silver-light
         border-radius: 0px
         border-top: 1px solid #DDD
-        &.image
-          width: 5.75%
-        &.name, &.state, &.countdown, &.age, &.dates
+        &.name, &.state, &.countdown, &.age
           border-left: 0px
         &.name
-          width: 37%
-        &.state
-          text-align: left
+          width: 45%
         &.age
           width: 19.5%
-  #userdashboard ///////////// user dashboard
-    .started:before
-      font-family: FontAwesome
-      content: "\f040"
-      color: $ocean
-    .pending:before
-      font-family: FontAwesome
-      content: "\f056"
-      color: $tangerine
-    .interview_requested
-      font-family: FontAwesome
-      content: "\f0e5"
-      color: $tangerine
-    .interview_scheduled
-      font-family: FontAwesome
-      content: "\f075"
-      color: $tangerine
-    .accepted:before
-      font-family: FontAwesome
-      content: "\f055"
-      color: $grass
-    .declined:before
-      font-family: FontAwesome
-      content: "\f056"
-      color: $silver-shadow
-    .confirmed:before
-      font-family: FontAwesome
-      content: "\f058"
-      color: $plum
-    .canceled:before
-      font-family: FontAwesome
-      content: "\f057"
-      color: $silver-shadow
-    .completed:before
-      font-family: FontAwesome
-      content: "\f091"
-      color: $grass
-    .following:before
-      font-family: FontAwesome
-      content: "\f06e"
-      color: $silver-black
-
-// Admin Dashboards ======
-#dashboard-display
-  h2
-    text-transform: none
-  #admindashboard //////////// admin dashboard
-    tr#following
-      background-color: $silver-light
-    .countdown
-    .nested-table
-      td
-        &.age
-          width: 6.5%
-  .statebar
-    font-size: 10px
-    margin: 5px 5px 5px 0px
-    .section
-      height: 3px
-      padding: 0
-      margin: 0
-      display: block
-      +roundcorners
-    .canceled
-      background-color: $silver
-      width: 16%
-    .declined
-      background-color: $silver
-      width: 16%
-    .started
-      background-color: $avocado-slight
-      width: 16%
-    .applied
-      background-color:  $avocado-light
-      width: 32%
-    .interview_requested
-      background-color:  $avocado-medium
-      width: 48%
-    .interview_scheduled
-      background-color:  $avocado
-      width: 64%
-    .accepted
-      background-color:  $avocado-shadow
-      width: 80%
-    .confirmed
-      background-color:  $avocado-black
-      width: 100%
-    .completed
-      background-color:  $silver
-      width: 100%
-
 
 
 // Event SignUps ======================================================================================

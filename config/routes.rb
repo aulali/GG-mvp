@@ -48,7 +48,6 @@ GirlsGuild::Application.routes.draw do
       post :cancel
       post :accept
       post :resubmit
-      get :duplicate
       get :checkmarks
     end
   end
@@ -61,7 +60,6 @@ GirlsGuild::Application.routes.draw do
       post :cancel
       post :accept
       post :resubmit
-      get :duplicate
       get :checkmarks
     end
   end
@@ -77,7 +75,6 @@ GirlsGuild::Application.routes.draw do
   end
 
   match '/dashboard', to: 'dashboards#display'
-  match '/admin', to: 'dashboards#admin'
   match 'users/avatar', to: 'dashboards#avatar', as: :avatar
   match 'users/update_avatar', to: 'dashboards#update_avatar', as: :update_avatar
 

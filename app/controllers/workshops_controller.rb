@@ -39,7 +39,6 @@ class WorkshopsController < ApplicationController
     @workshop.generate_title
 
     if @workshop.save(validate: false) && @workshop.deliver_save
-      @workshop.make_stamp
       redirect_to edit_workshop_path(@workshop)
     else
       raise
@@ -213,8 +212,7 @@ class WorkshopsController < ApplicationController
     #@workshop.revoke && @workshop.deliver_revoke
     #redirect_to workshops_path, :flash => { :warning => "Workshop revoked."} and return
   #end
-  def duplicate
-  end
+
 
   def show
     @workshop = Workshop.find(params[:id])

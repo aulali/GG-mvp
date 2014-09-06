@@ -615,13 +615,6 @@ class AppSignup < Signup
     return true
   end
 
-  def self.remind_maker_to_review
-    # UPDATE: date_range = (Date.today-5.days)..(Date.today+1)
-    # UPDATE: Apprenticeship.where(state: "started", help_posting_sent: false, :created_at => date_range).each do |app|
-      # UPDATE: app.deliver_help_posting
-    # end
-  end
-
   def self.reminder
     date_range = Date.today..(Date.today+3.days)
     AppSignup.joins(:event).where(events: {:begins_at => date_range}).where(state: 'confirmed', app_reminder_sent: false).each do |app|
@@ -697,37 +690,26 @@ class AppSignup < Signup
 
   def countdown_message
     if self.started?
-      return "Your application is saved. <a href=#{edit_app_signup_path(self)} class='bold'>Finish applying!</a>".html_safe
+        return "Your application is saved. <br/><a href=#{edit_app_signup_path(self)} class='bold'>Finish applying!</a>".html_safe
     elsif self.pending?
-      return "Your application is being reviewed. You should hear back by <strong>#{(self.state_stamps.last.stamp + 14.days).strftime("%b %d")}</strong>".html_safe
+        return "Your application is being reviewed. You should hear back by <strong>#{(self.state_stamps.last.stamp + 14.days).strftime("%b %d")}</strong>".html_safe
     elsif self.accepted?
-      return "Your application has been accepted! <a href=#{app_signup_path(self)} class='bold'>Confirm</a> your apprenticeship!".html_safe
+        return "Your application has been accepted! <a href=#{app_signup_path(self)} class='bold'>Confirm</a> your apprenticeship!".html_safe
     elsif self.declined?
-      return "It did't work out, but you're still awesome!"
-    #elsif self.interview_requested?
-    #  return "An interview request has been sent."
-    #elsif self.interview_scheduled?
-      return "Your interview has been scheduled."
     elsif self.canceled?
-      if self.event.canceled?
         return "This event has been canceled"
-      else
-        return "Your application has been canceled"
-      end
-    #elsif self.canceled?
-    #  return "This event has been canceled"
     elsif self.confirmed?
-      if self.event.datetime_tba
-        return ''
-      elsif self.event.begins_at && Date.today < self.event.begins_at
-        return "<strong>#{(self.event.begins_at.mjd - Date.today.mjd)}</strong> days until your apprenticeship begins!".html_safe
-      elsif self.event.ends_at && Date.today < self.event.ends_at
-        return "#{self.event.ends_at.mjd - Date.today.mjd} more days of your Apprenticeship"
-      else
-        return false
-      end
+        if self.event.datetime_tba
+          return ''
+        elsif self.event.begins_at && Date.today < self.event.begins_at
+          return "<strong>#{(self.event.begins_at.mjd - Date.today.mjd)}</strong> days until your apprenticeship begins!".html_safe
+        elsif self.event.ends_at && Date.today < self.event.ends_at
+          return "#{self.event.ends_at.mjd - Date.today.mjd} more days of your Apprenticeship"
+        else
+          return false
+        end
     elsif self.completed?
-      return "Your apprenticeship is complete"
+      return "Your apprenticeship is over :-)"
     else
     end
     return ''
