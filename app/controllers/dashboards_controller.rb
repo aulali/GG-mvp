@@ -10,6 +10,34 @@ class DashboardsController < ApplicationController
     end
   end
 
+  def admin
+    if current_user && current_user.admin?
+      @pending_apprenticeships = Apprenticeship.where(state: "pending").sort_by { |e| e.created_at }.reverse!
+      @posted_apprenticeships = Apprenticeship.where(state: "accepted").sort_by { |e| e.created_at }.reverse!
+      @filled_apprenticeships = Apprenticeship.where(state: "filled").sort_by { |e| e.created_at }.reverse!
+      @saved_apprenticeships = Apprenticeship.where(state: "started").sort_by { |e| e.created_at }.reverse!
+      @canceled_apprenticeships = Apprenticeship.where(state: "canceled").sort_by { |e| e.created_at }.reverse!
+      @completed_apprenticeships = Apprenticeship.where(state: "completed").sort_by { |e| e.created_at }.reverse!
+
+      @pending_workshops = Workshop.where(state: "pending").sort_by { |e| e.created_at }.reverse!
+      @posted_workshops = Workshop.where(state: "accepted").sort_by { |e| e.created_at }.reverse!
+      @filled_workshops = Workshop.where(state: "filled").sort_by { |e| e.created_at }.reverse!
+      @saved_workshops = Workshop.where(state: "started").sort_by { |e| e.created_at }.reverse!
+      @canceled_workshops = Workshop.where(state: "canceled").sort_by { |e| e.created_at }.reverse!
+      @completed_workshops = Workshop.where(state: "completed").sort_by { |e| e.created_at }.reverse!
+
+      @signups = Signup.all.sort_by { |s| s.created_at }.reverse!
+      @preregs = Prereg.all.sort_by { |p| p.created_at }.reverse!
+      # @accepted_signups = AppSignup.where(state: 'accepted').sort_by { |e| e.created_at }.reverse!
+    end
+  end
+
+  def metrics
+    if current_user && current_user.admin?
+      logger.info "Rendering metrics dashboard"
+    end
+  end
+
   def avatar
     @user = User.find(current_user.id)
   end

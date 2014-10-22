@@ -12,7 +12,7 @@ include EventHelper
   # Images
     validate :host_album_limit
   # Date & Time
-    validates :begins_at, :date => {:after => Proc.new { Date.today }, :message => 'Sorry! You need to plan your workshop for a date after today. Please check the date you set.'}, :if => :should_validate_begins_at?
+    validates :begins_at, :date => {:after => Proc.new { Date.today }, :message => 'Sorry! You need to plan your workshop for a date after today. Please check the date you set.'}, :if => :tba_is_blank
     validates_presence_of :begins_at_time, :ends_at_time, :if => :tba_is_blank
     validate :ends_after_start_time
     validate :close_signups
@@ -48,7 +48,7 @@ include EventHelper
   end
 
   validation_group :begins_at do
-    validates :begins_at, :date => {:after => Proc.new { Date.today }, :message => 'Sorry! You need to plan your workshop for a date after today. Please check the date you set.'}, :if => :should_validate_begins_at?
+    validates :begins_at, :date => {:after => Proc.new { Date.today }, :message => 'Sorry! You need to plan your workshop for a date after today. Please check the date you set.'}, :if => :tba_is_blank
   end
 
   validation_group :begins_at_time do
@@ -217,6 +217,38 @@ include EventHelper
 		return true
 	end
 
+    def deliver_close
+    Pony.mail({
+      :to => "#{user.name}<#{user.email}>",
+       :from => "Diana & Cheyenne<hello@girlsguild.com>",
+      :reply_to => "GirlsGuild<hello@girlsguild.com>",
+      :subject => "Your workshop has been closed - #{topic} with #{user.name}",
+      :html_body => %(<h1>Closed!</h1>
+        <p>You've closed your workshop. This means that it will appear to be full and you won't receive more signups.</p>
+        <p>You can keep track of your signups from your <a href="#{dashboard_url}">Events Dashboard</a></p>
+        <p>There are currently #{self.signups.where(:state => 'confirmed').count} people signed up, here are their email addresses: #{self.get_signup_emails}</p>
+        <p>~<br/>Thanks,</br>The GirlsGuild Team</p>),
+      :bcc => "hello@girlsguild.com",
+    })
+    return true
+  end
+
+  def deliver_reopen
+    Pony.mail({
+      :to => "#{user.name}<#{user.email}>",
+       :from => "Diana & Cheyenne<hello@girlsguild.com>",
+      :reply_to => "GirlsGuild<hello@girlsguild.com>",
+      :subject => "Your workshop has been reopened - #{topic} with #{user.name}",
+      :html_body => %(<h1>Reopened!</h1>
+        <p>You've reopened your workshop for signups. We'll keep you posted as new signups come in.</p>
+        <p>There are currently #{self.signups.where(:state => 'confirmed').count} people signed up.</p>
+        <p>You can keep track of your signups from your <a href="#{dashboard_url}">Events Dashboard</a></p>
+        <p>~<br/>Thanks,</br>The GirlsGuild Team</p>),
+      :bcc => "hello@girlsguild.com",
+    })
+    return true
+  end
+
   def deliver_cancel_lowsignups
     Pony.mail({
       :to => "#{user.name}<#{user.email}>",
@@ -309,19 +341,17 @@ include EventHelper
   end
 
 	def self.complete_workshop
-    Workshop.where(:state => ["accepted", "filled"]).where('begins_at <= ?', Date.today-1.days).each do |workshop|
-      #I don't know why workshop.complete doesn't work, but it doesn't and this does:
-      workshop.state = "completed"
-      workshop.save!(validate: false)
+    Workshop.where('begins_at <= ?', Date.today).all.each do |workshop|
       workshop.signups.where(:state => "confirmed").each {|w| w.complete}
+      workshop.complete
     end
 	end
 
-  def self.cancel_workshop
+	def self.cancel_workshop
     #Note: ends_at is the registration close date on workshops
     Workshop.where(state: "accepted").where('ends_at <= ?', Date.today).each do |w|
       unless w.min_capacity_met?
-        w.cancel(validate: false) && w.deliver_cancel_lowsignups
+        w.cancel && w.deliver_cancel_lowsignups
         w.signups.where(state: "confirmed").each do |s|
           s.cancel && s.deliver_cancel
 
@@ -330,8 +360,8 @@ include EventHelper
           :event_id => w.id)
         end
       end
-    end
-  end
+		end
+	end
 
   def self.maker_reminder
     date_range = Date.today..(Date.today+3.days)
@@ -407,5 +437,13 @@ include EventHelper
     return ''
   end
 
+	state_machine :state, :initial => :started do
+		event :complete do
+      transition :all => :completed
+    end
 
+    event :submit do
+      transition :started => :pending
+    end
+	end
 end

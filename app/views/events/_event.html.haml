@@ -18,6 +18,12 @@
                   = link_to "Edit", edit_apprenticeship_path(event), class: "btn btn-mini pull-right"
                 - elsif event.accepted?
                   = link_to "Edit", edit_apprenticeship_path(event), class: "btn btn-mini pull-right"
+              - if current_user.admin?
+                -if event.featured?
+                  %a.feature.btn.featured-btn.fa.fa-star.pull-right.relative{type: 'submit', rel: 'tooltip', data: {toggle: 'tooltip', title: "Remove listing from home page", url: "#{url_for(controller: event.class.name.underscore.pluralize, action: 'set_featured_listing', id: event.id)}" }}
+                - else
+                  %a.feature.btn.featured-btn.fa.fa-star-o.pull-right.relative{type: 'submit', rel: 'tooltip', data: {toggle: 'tooltip', title: "Display listing on home page", url: "#{url_for(controller: event.class.name.underscore.pluralize, action: 'set_featured_listing', id: event.id)}" }}
+
 
             = link_to event.title_html, apprenticeship_path(event), class: "title-boxlink"
             = event.type
@@ -25,8 +31,11 @@
             Ages
             %span.label
               = event.age_min ? event.age_min : '_'
-              to
-              = event.age_max ? event.age_max : '_'
+              - if event.age_max > 18
+                = "and Up"
+              - else
+                to
+                = event.age_max ? event.age_max : '_'
             %br
             %span.date
               - if event.datetime_tba == false
@@ -61,6 +70,11 @@
                   = link_to "Edit", edit_workshop_path(event), class: "btn btn-mini pull-right"
                 - elsif event.accepted?
                   = link_to "Edit", edit_workshop_path(event), class: "btn btn-mini pull-right"
+              - if current_user.admin?
+                -if event.featured?
+                  %a.feature.btn.featured-btn.fa.fa-star.pull-right.relative{type: 'submit', rel: 'tooltip', data: {toggle: 'tooltip', title: "Stop showing this listing on the home page", url: "#{url_for(controller: event.class.name.underscore.pluralize, action: 'set_featured_listing', id: event.id)}" }}
+                - else
+                  %a.feature.btn.featured-btn.fa.fa-star-o.pull-right.relative{type: 'submit', rel: 'tooltip', data: {toggle: 'tooltip', title: "Display this listing on the home page", url: "#{url_for(controller: event.class.name.underscore.pluralize, action: 'set_featured_listing', id: event.id)}" }}
 
             = link_to event.title_html, workshop_path(event), class: "title-boxlink"
             = event.type
@@ -68,8 +82,11 @@
             Ages
             %span.label
               = event.age_min ? event.age_min : '_'
-              to
-              = event.age_max ? event.age_max : '_'
+              - if event.age_max > 18
+                = "and Up"
+              - else
+                to
+                = event.age_max ? event.age_max : '_'
             %br
             %span.date
               - if event.datetime_tba == false

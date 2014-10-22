@@ -21,11 +21,23 @@
               .label.pull-right Workshop
             = link_to event.title_html, url_for(controller: event.class.name.underscore.pluralize, action: 'show', id: event.id ), class: "title-boxlink"
             - unless current_user.blank?
-              - if event.user == current_user
-                - if event.started?
-                  = link_to "Edit", url_for(controller: event.class.name.underscore.pluralize, action: 'edit', id: event.id ), class: ""
-                - elsif event.accepted? or event.canceled? or event.filled?
-                  = link_to "Edit", url_for(controller: event.class.name.underscore.pluralize, action: 'edit', id: event.id ), class: ""
+              - if event.user == current_user and (event.started? or event.pending? or event.accepted?)
+                = link_to "Edit", url_for(controller: event.class.name.underscore.pluralize, action: 'edit', id: event.id )
+              - if event.canceled? or event.filled? or event.completed?
+                = link_to "Duplicate", url_for(controller: event.class.name.underscore.pluralize, action: 'duplicate', id: event.id ), data: { :confirm => "Are you sure? 'Duplicate' will start a new listing pre-populated with the information from this apprenticeship listing." }
+              - if event.pending? or event.accepted? or event.filled?
+                &nbsp; | &nbsp;
+                = link_to "Cancel", url_for(controller: event.class.name.underscore.pluralize, action: 'cancel', id: event.id), method: :post, data: { :confirm => "Are you sure? Your apprenticeship will be saved in your Dashboard, but you'll have to resubmit it in order to post it again." }
+              - if event.accepted?
+                &nbsp; | &nbsp;
+                = link_to "Close", url_for(controller: event.class.name.underscore.pluralize, action: 'close', id: event.id), method: :post, data: { :confirm => "Are you sure? Your event will be closed for signups." }
+              - if event.filled? and !event.max_capacity_met?
+                &nbsp; | &nbsp;
+                = link_to "Re-Open", url_for(controller: event.class.name.underscore.pluralize, action: 'reopen', id: event.id), method: :post, data: { :confirm => "Are you sure? Your event will be reopened for signups." }
+              - if event.started?
+                &nbsp; | &nbsp;
+                = link_to "Delete", url_for(controller: event.class.name.underscore.pluralize, action: 'destroy', id: event.id), method: :delete, data: { :confirm => "Are you sure? Your apprenticeship will be deleted permanantly." }
+
           %td.spots
             = event.spots_left
           %td.dates

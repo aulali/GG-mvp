@@ -29,7 +29,7 @@ class ApprenticeshipsController < ApplicationController
     if params[:apprenticeship]
       @apprenticeship = current_user.apprenticeships.new(params[:apprenticeship])
     else
-      @apprenticeship = current_user.apprenticeships.new(topic: 'Your Apprenticeship Topic', host_firstname: current_user.first_name, host_lastname: current_user.last_name, kind: "Production", datetime_tba: false, hours: "4", availability: "On a flexible schedule", location_address: "1309 Chestnut Ave.", location_state: "TX", location_city: "Austin", location_nbrhood: "East Austin", location_zipcode: "78702", age_min: "12", age_max: "100", registration_max: "1")
+      @apprenticeship = current_user.apprenticeships.new(topic: 'Your Apprenticeship Topic', host_firstname: current_user.first_name, host_lastname: current_user.last_name, kind: "Production", datetime_tba: false, hours: "4", availability: "On a flexible schedule", location_address: "1309 Chestnut Ave.", location_state: "TX", location_city: "Austin", location_nbrhood: "East Austin", location_zipcode: "78702", age_min: "12", age_max: "100", registration_max: "2", featured: false)
     end
     @apprenticeship.begins_at ||= Date.today + 7.day
     @apprenticeship.ends_at ||= Date.tomorrow + 97.day
@@ -151,7 +151,36 @@ class ApprenticeshipsController < ApplicationController
     end
     redirect_to :back, :flash => { warning: "Blarf.  The following error(s) occured while attempting to cancel your apprenticeship: #{error_msg}".html_safe} and return
   end
-
+#---- close
+  def close
+    if @apprenticeship.fill && @apprenticeship.deliver_close
+      redirect_to :back, :flash => { :warning => "Your apprenticeship was closed for applications."} and return
+    else
+      raise
+    end
+  rescue
+    error_msg = " "
+    @apprenticeship.errors.each do |field, msg|
+      error_msg << "<br/>"
+      error_msg << msg
+    end
+    redirect_to :back, :flash => { warning: "Whoops, the following error(s) occured while attempting to close your apprenticeship: #{error_msg}".html_safe} and return
+  end
+#---- reopen
+  def reopen
+    if @apprenticeship.reopen && @apprenticeship.deliver_reopen
+      redirect_to :back, :flash => {:success => "Great! Your apprenticeship is open for applications again."} and return
+    else
+      raise
+    end
+  rescue
+    error_msg = " "
+    @apprenticeship.errors.each do |field, msg|
+      error_msg << "<br/>"
+      error_msg << msg
+    end
+    redirect_to :back, :flash => { warning: "Whoops, the following error(s) occured while attempting to reopen your apprenticeship: #{error_msg}".html_safe} and return
+  end
 #---- accept
   def accept
     if @apprenticeship.accept && @apprenticeship.deliver_accept
@@ -195,6 +224,10 @@ class ApprenticeshipsController < ApplicationController
     #@apprenticeship.revoke && @apprenticeship.deliver_revoke
     #redirect_to apprenticeships_path, :flash => { :warning => "Apprenticeship revoked."} and return
   #end
+
+  def set_featured_listing
+    @apprenticeship.toggle!(:featured) and return
+  end
 
   def show
     @apprenticeship = Apprenticeship.find(params[:id])

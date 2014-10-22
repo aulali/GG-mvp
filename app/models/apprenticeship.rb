@@ -201,6 +201,40 @@ class Apprenticeship < Event
     return true
   end
 
+  def deliver_close
+    Pony.mail({
+      :to => "#{user.name}<#{user.email}>",
+       :from => "Diana & Cheyenne<hello@girlsguild.com>",
+      :reply_to => "GirlsGuild<hello@girlsguild.com>",
+      :subject => "Your apprenticeship has been closed - #{topic} with #{user.name}",
+      :html_body => %(<h1>Closed!</h1>
+        <p>You've closed applications to your apprenticeship. This means that it will appear to be full and you won't receive anymore applications.</p>
+        <p>You can keep track of your current applications from your <a href="#{dashboard_url}">Events Dashboard</a>.</p>
+        <p>There are currently #{self.signups.where(:state => ['pending','interview_requested','interview_scheduled', 'accepted']).count} open applications:</p>
+        <p>#{self.list_applications}</p>
+        <p>~<br/>Thanks,</br>The GirlsGuild Team</p>),
+      :bcc => "hello@girlsguild.com",
+    })
+    return true
+  end
+
+  def deliver_reopen
+    Pony.mail({
+      :to => "#{user.name}<#{user.email}>",
+       :from => "Diana & Cheyenne<hello@girlsguild.com>",
+      :reply_to => "GirlsGuild<hello@girlsguild.com>",
+      :subject => "Your apprenticeship has been reopened - #{topic} with #{user.name}",
+      :html_body => %(<h1>Reopened!</h1>
+        <p>You've reopened your apprenticeship for applications. We'll keep you posted as new applications come in.</p>
+        <p>You can keep track of your current applications from your <a href="#{dashboard_url}">Events Dashboard</a>.</p>
+        <p>There are currently #{self.signups.where(:state => ['pending','interview_requested','interview_scheduled', 'accepted']).count} open applications:</p>
+        <p>#{self.list_applications}</p>
+        <p>~<br/>Thanks,</br>The GirlsGuild Team</p>),
+      :bcc => "hello@girlsguild.com",
+    })
+    return true
+  end
+
   def deliver_reject
     Pony.mail({
       :to => "#{user.name}<#{user.email}>",
@@ -233,6 +267,36 @@ class Apprenticeship < Event
       :bcc => "hello@girlsguild.com",
     })
     return true
+  end
+
+  def deliver_help_posting
+    Pony.mail({
+        :to => "#{user.name}<#{user.email}>",
+        :from => "Diana & Cheyenne<hello@girlsguild.com>",
+        :reply_to => "GirlsGuild<hello@girlsguild.com>",
+        :subject => "Any questions we can help with?",
+        :html_body => %(<p>Hey #{user.first_name},</p>
+          <p>We're glad you started an apprenticeship posting the other day. Do you have any questions about it?</p>
+          <p>To find out what to expect from the process, take a look at our <a href="#{new_apprenticeship_url}">How it Works</a> page. For more details, check out the <a href="#{faq_url}">FAQ</a>. And if you have specific questions, just hit reply! We're happy to chat about it.</p>
+          <p>To continue the posting and submit it, you can find it here - <a href="#{edit_apprenticeship_url(self)}"> #{self.title}</a>
+          <p>~<br/>Thanks,<br/><br/>Cheyenne & Diana<br/>GirlsGuild Co-Founders</p>),
+        :bcc => "hello@girlsguild.com",
+    })
+    self.update_column(:help_posting_sent, true)
+    return true
+  end
+
+  def self.help_posting
+    date_range = (Date.today-5.days)..(Date.today+1)
+    Apprenticeship.where(state: "started", help_posting_sent: false, :created_at => date_range).each do |app|
+      app.deliver_help_posting
+    end
+  end
+
+  def list_applications
+    "<ul>" + self.signups.where(:state => ['pending','interview_requested','interview_scheduled', 'accepted']).map do |a|
+      "<li><a href=#{url_for(a)}> #{a.user.first_name}</a> (#{a.state})</li>"
+    end.join + "</ul>"
   end
 
   def self.complete_apprenticeship
